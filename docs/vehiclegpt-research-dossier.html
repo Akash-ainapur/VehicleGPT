@@ -1,0 +1,459 @@
+<title>VehicleGPT Research Dossier</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column with a sticky section index on wide screens; tables scroll inside their own frames. */
+:root{
+  --bg:#f5f6f7; --surface:#ffffff; --fg:#1b2026; --muted:#5b6570; --line:#d9dee3;
+  --accent:#c77700; --accent-soft:#fff3df; --ink:#22303d;
+  --ok:#1f7a4d; --ok-soft:#e3f4ea; --warn:#9a6200; --warn-soft:#fff1d6; --todo:#8a3b3b; --todo-soft:#f8e4e4;
+  --code-bg:#eef1f4;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161a; --surface:#1a2026; --fg:#e4e8ec; --muted:#98a3ae; --line:#2c353e;
+  --accent:#f0a030; --accent-soft:#2e2414; --ink:#cfd8e1;
+  --ok:#5fcf95; --ok-soft:#14291e; --warn:#f0b24a; --warn-soft:#2d2311; --todo:#f08a8a; --todo-soft:#2d1717;
+  --code-bg:#222a31; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161a; --surface:#1a2026; --fg:#e4e8ec; --muted:#98a3ae; --line:#2c353e;
+  --accent:#f0a030; --accent-soft:#2e2414; --ink:#cfd8e1;
+  --ok:#5fcf95; --ok-soft:#14291e; --warn:#f0b24a; --warn-soft:#2d2311; --todo:#f08a8a; --todo-soft:#2d1717;
+  --code-bg:#222a31; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15.5px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;font-size:13.5px}
+nav.toc p{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;border-left:2px solid var(--line)}
+nav.toc a{display:block;padding:3px 0 3px 12px;color:var(--muted);text-decoration:none;margin-left:-2px;border-left:2px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--fg);border-left-color:var(--accent);outline:none}
+main{min-width:0}
+header.top{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:8px}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.12em;font-weight:600;color:var(--accent);font-size:14px;margin:0}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(38px,6vw,58px);line-height:1;margin:8px 0 14px;letter-spacing:-.01em;text-wrap:balance;color:var(--ink)}
+h2{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;margin:0 0 6px;text-wrap:balance;color:var(--ink)}
+h3{font-family:var(--f-display);font-weight:600;font-size:21px;margin:26px 0 6px;color:var(--ink)}
+.lede{font-size:17.5px;max-width:68ch;color:var(--fg);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;color:var(--muted);font-size:13.5px}
+.meta b{color:var(--fg);font-weight:600}
+section{padding-block:38px;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+section > p, section > ul, section > ol{max-width:72ch}
+.sub{color:var(--muted);margin:0 0 18px;max-width:72ch}
+a{color:var(--accent);text-underline-offset:2px}
+code,.mono{font-family:var(--f-mono);font-size:.86em;background:var(--code-bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:13px;font-weight:600;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:1px 7px;border-radius:999px;white-space:nowrap}
+.v{background:var(--ok-soft);color:var(--ok)} .vc{background:var(--warn-soft);color:var(--warn)} .tv{background:var(--todo-soft);color:var(--todo)}
+.thesis{background:var(--accent-soft);border-left:4px solid var(--accent);padding:18px 22px;border-radius:0 8px 8px 0;margin:18px 0;max-width:80ch}
+.thesis p{margin:0}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:10px;max-width:80ch}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px}
+.steps li::before{content:counter(s);font-family:var(--f-display);font-weight:700;font-size:20px;color:var(--accent);line-height:1.3}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.box h4{font-family:var(--f-display);font-size:18px;margin:0 0 6px;font-weight:600;color:var(--ink)}
+.box p,.box ul{margin:0;font-size:14.5px}
+.box ul{padding-left:18px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);margin-top:14px;align-items:center}
+pre.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto;font-size:13px}
+.src{columns:2 320px;column-gap:32px;font-size:13.5px;padding-left:18px}
+.src li{break-inside:avoid;margin-bottom:6px}
+footer{color:var(--muted);font-size:13px;padding-top:28px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}nav.toc{display:none}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <p>Contents</p>
+  <ol>
+    <li><a href="#brief">The brief</a></li>
+    <li><a href="#thesis">Core design idea</a></li>
+    <li><a href="#arch">System architecture</a></li>
+    <li><a href="#data">Vehicle data collection</a></li>
+    <li><a href="#slm">SLM selection</a></li>
+    <li><a href="#retrieval">Search &amp; retrieval</a></li>
+    <li><a href="#storage">Historical storage</a></li>
+    <li><a href="#analytics">Trends, anomalies, causes</a></li>
+    <li><a href="#edge">Edge deployment</a></li>
+    <li><a href="#ux">User interaction</a></li>
+    <li><a href="#safety">Safety, security, privacy</a></li>
+    <li><a href="#sim">Simulation &amp; validation</a></li>
+    <li><a href="#repos">Hidden-gem repos</a></li>
+    <li><a href="#papers">Papers</a></li>
+    <li><a href="#industry">Industry landscape</a></li>
+    <li><a href="#open">Open questions</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <p class="eyebrow">Teliport S4 · Case Study 5 · TBU</p>
+  <h1>VehicleGPT Research Dossier</h1>
+  <p class="lede">How to build an on-device language assistant that reads a software-defined vehicle's CAN, SOME/IP, VHAL, QNX, ADAS and diagnostic data and answers questions about it in under 2 seconds, offline, inside 2 GB of RAM. This page covers what already exists worldwide, what the evidence says, and the architecture it points to.</p>
+  <div class="meta"><span><b>Updated</b> 28 Oct 2026</span><span><b>Target</b> production SDV, 2× Cortex-A5x · 2 GB · optional NPU</span><span><b>Status</b> research complete, pre-implementation</span></div>
+  <div class="legend"><span class="pill v">Verified</span> checked against the primary source <span class="pill vc">Vendor claim</span> from the company itself <span class="pill tv">To verify</span> not yet confirmed</div>
+</header>
+
+<section id="brief">
+  <h2>The brief</h2>
+  <p class="sub">What the case study requires, restated as engineering constraints.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Requirement</th><th>Constraint</th><th>What it forces in the design</th></tr></thead>
+    <tbody>
+      <tr><td>Compute</td><td>~2 GB RAM, ~2 ARM Cortex-A5x cores</td><td>A sub-1B model in 4–8 bit, a small resident set, no heavy databases</td></tr>
+      <tr><td>Latency</td><td>&lt; 2 s for common queries</td><td>The model must not read raw data or write long answers; common queries skip the model entirely</td></tr>
+      <tr><td>Connectivity</td><td>No cloud dependency</td><td>All ASR, inference, storage and analytics on the vehicle</td></tr>
+      <tr><td>History</td><td>Searchable for several weeks</td><td>Tiered, flash-aware storage with downsampling and event capture</td></tr>
+      <tr><td>Safety</td><td>Safety-critical functions isolated from AI</td><td>Separate partition, read-only one-way data feed, no actuation</td></tr>
+      <tr><td>Sources</td><td>CAN/CAN-FD, SOME/IP, Android VHAL, QNX, ADAS, camera, diagnostics</td><td>A normalising data layer (COVESA VSS) in front of every protocol</td></tr>
+      <tr><td>Users</td><td>Drivers, service engineers, fleet, validation teams</td><td>Role-based views and an authenticated service API</td></tr>
+    </tbody>
+  </table></div>
+  <p>Example questions from the brief, which the design must answer: <em>Why has my driving range reduced over the last two weeks? When did fuel efficiency show the largest drop? Show all ADAS disengagement events from yesterday. What happened before the battery overheating warning? Compare energy consumption between city and highway driving.</em></p>
+</section>
+
+<section id="thesis">
+  <h2>Core design idea</h2>
+  <div class="thesis"><p><b>The language model routes; deterministic code computes.</b> A 0.5–1B model on two small cores is slow to read prompts and unreliable at arithmetic. So it only turns a question into a short, grammar-checked tool call. Precomputed analytics and SQL produce the numbers, and a template writes the answer. Accuracy then comes from the data layer, not the model.</p></div>
+  <ol class="steps">
+    <li><div><b>L0 deterministic router.</b> An intent and slot matcher plus a time-phrase parser ("last two weeks", "yesterday") answers common questions in under 100 ms without calling the model. This is the most reliable way to meet the 2 s requirement for common queries.</div></li>
+    <li><div><b>L1 small-model tool caller.</b> Handles long-tail and compound questions. The system prompt and tool definitions are KV-cached once, so each query prefills only about 30 new tokens. The output is a GBNF-constrained JSON tool call of about 10–15 tokens.</div></li>
+    <li><div><b>Deterministic tools.</b> About 12 validated functions over the store return value, unit, period, evidence and chart data.</div></li>
+    <li><div><b>Grounded composer.</b> Per-intent templates, plus an optional one-sentence explanation from the model. The sentence is dropped if it contains a number not present in the evidence (the CarExpert moderator idea).</div></li>
+  </ol>
+  <h3>Why not let the model write SQL?</h3>
+  <p>Sub-2B models reach only <b>56.9% (0.5B) and 67.1% (1.5B)</b> execution accuracy on the BIRD text-to-SQL benchmark, even after fine-tuning and RL (<a href="https://arxiv.org/abs/2507.22478">SLM-SQL</a>). Constrained tools are auditable and testable. Separately, time-series QA research finds that agents querying data through tools beat feeding raw numbers to the model by up to 10 points (<a href="https://arxiv.org/abs/2606.16545">arXiv 2606.16545</a>).</p>
+  <h3>Closest production precedent</h3>
+  <p><a href="https://arxiv.org/abs/2501.02342">Mercedes-Benz R&amp;D (arXiv 2501.02342)</a> pruned Phi-3-mini from 3.8B to 1.8B parameters, quantized it to 4-bit GGUF and ran it in llama.cpp on a 7-core ARM head-unit CPU at <b>about 11 tokens/s</b>. Its function-call exact-match accuracy was 0.86, against 0.75 for their production speech system. They trained on 25,000 synthetic examples plus 500 refusals, using Octopus-style functional tokens. <span class="pill v">Verified</span></p>
+</section>
+
+<section id="arch">
+  <h2>System architecture</h2>
+  <p class="sub">The safety domain stays untouched. The AI lives in its own guest partition and receives a read-only mirror of vehicle data.</p>
+<pre class="mermaid">
+flowchart LR
+  subgraph SAFE["Safety / real-time domain (ASIL, unchanged)"]
+    ECU["Zonal ECUs<br/>CAN / CAN-FD"] --> GW["Central gateway"]
+    BMS["BMS · VCU · HVAC · ADAS<br/>SOME/IP services"]
+    QNX["QNX cluster<br/>slog2 · PPS"]
+    IVI["Android IVI<br/>VHAL"]
+    DIAG["Diagnostics<br/>UDS / SOVD"]
+  end
+  GW -- "read-only mirror" --> DL
+  BMS -- "subscribe only" --> DL
+  QNX -- "DLT" --> DL
+  IVI -- "CarPropertyManager bridge" --> DL
+  DIAG -- "read DTC / DID" --> DL
+  subgraph AI["AI guest partition (QM · 2 vCPU · 2 GB · optional NPU)"]
+    DL["Vehicle data layer<br/>Kuksa Databroker · COVESA VSS"] --> REC["Recorder<br/>policies · event capture"]
+    REC --> ST["Tiered store<br/>RAM ring → SQLite → archive"]
+    ST --> AN["Analytics jobs<br/>trips · baseline · changepoints · anomalies"]
+    AN --> ST
+    Q["Question"] --> L0["L0 router"]
+    L0 -- "confident" --> T["Deterministic tools"]
+    L0 -- "unsure" --> L1["L1 SLM tool caller<br/>GBNF · cached prefix"]
+    L1 --> T
+    T --> ST
+    T --> C["Grounded composer<br/>+ manual / DTC RAG"]
+    C --> OUT["Driver HMI · service console · fleet export"]
+  end
+</pre>
+  <div class="grid2">
+    <div class="box"><h4>Isolation boundary</h4><p>A hypervisor (QNX Hypervisor 8.0 for Safety, Xen or Gunyah) partitions CPU, memory and, through bandwidth regulation, cache and DRAM contention. The AI has no write path to any bus.</p></div>
+    <div class="box"><h4>One data model</h4><p>Every protocol is normalised to COVESA VSS paths such as <code>Vehicle.Powertrain.Range</code> and <code>Vehicle.Speed</code>. Tools, prompts and the catalog all speak VSS, so a new vehicle line only needs a new mapping file.</p></div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>Vehicle data collection</h2>
+  <p class="sub">The production path for each source, plus the open tool to simulate or prototype it.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Source</th><th>Production path</th><th>Reference / simulation tool</th></tr></thead>
+    <tbody>
+      <tr><td>CAN / CAN-FD</td><td>Gateway forwards selected PDUs. A provider decodes them with the OEM DBC/ARXML into VSS</td><td><a href="https://github.com/eclipse-kuksa/kuksa-can-provider">kuksa-can-provider</a>, <a href="https://github.com/cantools/cantools">cantools</a>, <a href="https://github.com/commaai/opendbc">opendbc</a>, <a href="https://github.com/mguentner/cannelloni">cannelloni</a> (CAN over Ethernet)</td></tr>
+      <tr><td>SOME/IP</td><td>A vsomeip client subscribes to service events (BMS, VCU, ADAS status, HVAC), with fields from FIDL/ARXML</td><td><a href="https://github.com/COVESA/vsomeip">vsomeip</a>, <a href="https://someipy.readthedocs.io">someipy</a> (Python, replays CSV or ROS bags)</td></tr>
+      <tr><td>Android VHAL</td><td>A privileged service in the IVI guest reads <code>CarPropertyManager</code> and forwards over gRPC</td><td>Cuttlefish automotive build plus <a href="https://github.com/remotivelabs/remotivelabs-android-emulator">remotivelabs-android-emulator</a> (prebuilt phone images lack VHAL)</td></tr>
+      <tr><td>QNX services and logs</td><td>slog2 and PPS events through DLT, parsed into structured events</td><td><a href="https://github.com/COVESA/dlt-daemon">COVESA dlt-daemon</a></td></tr>
+      <tr><td>ADAS</td><td>Event metadata over SOME/IP: disengagement reason, TTC, lane quality, sensor-blockage flags</td><td>CARLA scenarios, <a href="https://github.com/DaviDubeux/yes-carla-can">Yes, CARLA CAN</a></td></tr>
+      <tr><td>Camera</td><td>No raw video retained. One low-res keyframe per event, embedded as a 256-d vector for semantic search</td><td><a href="https://huggingface.co/google/embeddinggemma-2">EmbeddingGemma 2</a> vision encoder (170M)</td></tr>
+      <tr><td>Diagnostics</td><td>Read-only SOVD (ISO 17978) or UDS: DTCs, freeze frames, DIDs</td><td><a href="https://projects.eclipse.org/projects/automotive.opensovd">Eclipse OpenSOVD</a> (Apache-2.0, incubating; BMW, Mercedes-Benz, ZF, Liebherr), <a href="https://github.com/farzadnadiri/Peykan">Peykan</a> UDS/OBD/J1939 simulator</td></tr>
+    </tbody>
+  </table></div>
+  <p>The data layer is <a href="https://github.com/eclipse-kuksa/kuksa-databroker">Eclipse Kuksa Databroker</a>, a Rust gRPC server holding the VSS tree. Providers write into it and the AI only reads. The <a href="https://github.com/eclipse-sdv-blueprints/carmate">Eclipse SDV CarMate blueprint</a> already wires CARLA → Kuksa → a local LLM through Ollama, which makes it the closest open reference.</p>
+</section>
+
+<section id="slm">
+  <h2>SLM selection rationale</h2>
+  <p class="sub">Candidates for the L1 tool caller. Final choice by benchmark on A55-class cores (see Open questions).</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Model</th><th class="num">Params</th><th>Why it is on the list</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>FunctionGemma</td><td class="num">270M</td><td>Built for function calling. Google's Mobile Actions fine-tune lifts accuracy from 58% to 85%. About 290 MB at int8</td><td><span class="pill v">Verified</span> <a href="https://ai.google.dev/gemma/docs/mobile-actions">Google docs</a></td></tr>
+      <tr><td>Liquid LFM2 / LFM2.5</td><td class="num">230M–1.2B</td><td>Hybrid architecture claimed 2× faster prefill and decode than Qwen3 on CPU. LFM2.5-350M on a Pi 5: ~200 tok/s prefill, ~30 tok/s decode, 300 MB peak</td><td><span class="pill vc">Vendor claim</span> <a href="https://www.liquid.ai/blog/lfm2-5-350m-no-size-left-behind">Liquid AI</a></td></tr>
+      <tr><td>Qwen3</td><td class="num">0.6B / 1.7B</td><td>Strong small instruction model with native tool-call format and wide runtime support</td><td><span class="pill tv">To verify</span> on target cores</td></tr>
+      <tr><td>TinyAgent</td><td class="num">1.1B</td><td>Berkeley's edge function-calling model with ToolRAG and an open data recipe. MIT, 500 stars, inactive since Sept 2024</td><td><span class="pill v">Verified</span> <a href="https://arxiv.org/abs/2409.00608">arXiv 2409.00608</a></td></tr>
+      <tr><td>Gemma 3 1B · Llama 3.2 1B</td><td class="num">1B</td><td>Baselines. Llama 3.2 1B ships pre-compiled for Hailo-10H and Qualcomm AI Hub (SA8295P listed)</td><td><span class="pill v">Verified</span> <a href="https://aihub.qualcomm.com/models/llama_v3_2_1b_instruct">Qualcomm AI Hub</a></td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid2">
+    <div class="box"><h4>Runtime</h4><ul><li><b>llama.cpp</b> as baseline: GGUF, GBNF grammars, prompt cache, NEON. This is what Mercedes-Benz shipped on.</li><li><b>MNN-LLM</b> as challenger: claims 8.6× prefill and 2.3× decode over llama.cpp on phone CPUs (<a href="https://arxiv.org/abs/2506.10443">arXiv 2506.10443</a>) <span class="pill vc">Vendor claim</span></li><li>Vendor NPU SDKs (QNN, eIQ, TIDL, RKLLM) via ONNX or ExecuTorch where the SoC has one.</li></ul></div>
+    <div class="box"><h4>Fine-tuning recipe</h4><ul><li>10–25k synthetic question → tool-call pairs, generated by a large model from the tool schemas and the VSS catalog.</li><li>Around 500 refusal examples, plus paraphrases in Indian and global English.</li><li>LoRA fine-tune, then export to GGUF Q4/Q8.</li><li>Optional functional tokens for each tool (Octopus v2 / Mercedes approach) to shorten output.</li></ul></div>
+    <div class="box"><h4>EmbeddingGemma 2 (new, Apache-2.0)</h4><ul><li>The 270M text part does semantic intent matching for L0 and ToolRAG for L1.</li><li>RAG over the owner's manual and DTC descriptions.</li><li>The vision encoder (170M) embeds ADAS keyframes, so camera events become searchable without storing video.</li><li>Matryoshka 256-d vectors keep about 99% of 768-d quality. Use bf16 or fp32, never fp16. On-CPU latency is <span class="pill tv">To verify</span>.</li></ul></div>
+  </div>
+</section>
+
+<section id="retrieval">
+  <h2>Search &amp; retrieval workflow</h2>
+  <p class="sub">The five brief questions, mapped to the tool that answers each.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Question</th><th>Router</th><th>Tool call</th><th>Data it reads</th></tr></thead>
+    <tbody>
+      <tr><td>Why has my driving range reduced over the last two weeks?</td><td>L0</td><td><code>explain_change(signal="Vehicle.Powertrain.Range", window="14d")</code></td><td><code>daily_features</code> + baseline-model residual attribution</td></tr>
+      <tr><td>When did fuel efficiency show the largest drop?</td><td>L0</td><td><code>largest_change(metric="efficiency_daily", window="all")</code></td><td>Precomputed changepoints</td></tr>
+      <tr><td>Show all ADAS disengagement events from yesterday.</td><td>L0</td><td><code>list_events(type="adas.disengagement", range="yesterday")</code></td><td><code>events</code> + keyframe refs</td></tr>
+      <tr><td>What happened before the battery overheating warning?</td><td>L0</td><td><code>before_event(event="battery.overtemp", lookback="120s")</code></td><td><code>precontext</code> (full-rate capture)</td></tr>
+      <tr><td>Compare energy consumption between city and highway driving.</td><td>L0</td><td><code>compare_segments(metric="wh_per_km", by="road_type")</code></td><td><code>trips</code> with city/highway labels</td></tr>
+      <tr><td>Long-tail, e.g. "Was the AC why my range dipped on rainy days last week?"</td><td>L1</td><td><code>explain_change(…, filter="rain")</code></td><td>Same tools, composed by the SLM</td></tr>
+    </tbody>
+  </table></div>
+  <p>Full tool set (about 12): <code>get_latest</code>, <code>trend</code>, <code>compare_segments</code>, <code>largest_change</code>, <code>list_events</code>, <code>before_event</code>, <code>anomalies</code>, <code>explain_change</code>, <code>trip_summary</code>, <code>dtc_lookup</code>, <code>energy_breakdown</code>, <code>search_manual</code>. Each validates arguments against the signal catalog and the caller's role, and returns structured errors for unknown tools (a pattern from <a href="https://github.com/AnasKhan0607/car-ai">car-ai</a>).</p>
+  <h3>Latency budget (design targets)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th class="num">L0 path</th><th class="num">L1 path</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Parse + route</td><td class="num">≤ 30 ms</td><td class="num">≤ 30 ms</td><td>Includes optional EmbeddingGemma intent match</td></tr>
+      <tr><td>Prefill (~30 new tokens)</td><td class="num">–</td><td class="num">~0.3–0.6 s</td><td>Static prefix KV-cached <span class="pill tv">To verify</span></td></tr>
+      <tr><td>Decode (~12 tokens)</td><td class="num">–</td><td class="num">~0.6–1.0 s</td><td>Assumes 12–20 tok/s for a 0.3–0.6B Q4 model on 2× A55 <span class="pill tv">To verify</span></td></tr>
+      <tr><td>Tool / SQL</td><td class="num">50–300 ms</td><td class="num">50–300 ms</td><td>Indexed, precomputed tables</td></tr>
+      <tr><td>Compose</td><td class="num">≤ 10 ms</td><td class="num">≤ 10 ms</td><td>Optional 1-sentence explanation adds decode time</td></tr>
+      <tr><td><b>Total</b></td><td class="num"><b>&lt; 0.4 s</b></td><td class="num"><b>~1.0–1.9 s</b></td><td>ASR and TTS excluded (streamed in parallel)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Reference points: an RK3588 runs Qwen2.5-1.5B Q4 at 22.6 tok/s with llama.cpp on its A76 cores, and four threads beat eight because the A55 cores hold the pipeline back (<a href="https://turingpi.com/llm-inference-benchmarks-rk3588-gguf-quantization/">Turing Pi</a>). On an RK3566 (4× A55), a 3B model ran at 2.62 tok/s, and the author found scaling bandwidth-bound (<a href="https://hackaday.io/project/206380-taqabuddy-a-fully-offline-ai-assistant">TaqaBuddy</a>). That puts a 0.5B model on A55 cores in roughly the low-teens tok/s, which is an extrapolation to measure.</p>
+</section>
+
+<section id="storage">
+  <h2>Historical storage</h2>
+  <p class="sub">Weeks of history on embedded flash, without a heavyweight database.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Tier</th><th>Content</th><th>Retention</th><th>Technology</th></tr></thead>
+    <tbody>
+      <tr><td>Hot</td><td>All subscribed signals at full rate</td><td>2–5 min ring buffer</td><td>In-RAM ring (~64 MB)</td></tr>
+      <tr><td>Event capture</td><td>Pre- and post-window around each warning, DTC or ADAS event</td><td>Kept with the event</td><td><code>precontext</code> table</td></tr>
+      <tr><td>Warm</td><td>1 Hz or on-change samples, 1 min and 1 h rollups, events, DTCs, trips, daily features</td><td>4–8 weeks</td><td>SQLite WAL, <code>WITHOUT ROWID (sig_id, ts)</code></td></tr>
+      <tr><td>Cold</td><td>Compressed daily partitions</td><td>Months (optional)</td><td>Parquet or zstd segments</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><b>Recorder in Rust or C++.</b> Each signal has a policy: on-change with deadband for slow signals, 1 Hz for dynamics. Appends are batched so flash write amplification stays low.</li>
+    <li><b>Sizing target:</b> about 20–60 MB/day for 200–500 signals <span class="pill tv">To verify</span>. Six weeks then fits in a few GB of eMMC.</li>
+    <li><b>Why SQLite:</b> proven in automotive, no server process, small RAM footprint. DuckDB is fine for analytics on Parquet, but it has no retention engine (<a href="https://www.influxdata.com/comparison/duckdb-vs-timescaledb">InfluxData comparison</a>).</li>
+    <li><b>Protection:</b> fscrypt or dm-crypt with keys in the SoC HSM/TEE, retention purge, and a wipe on ownership transfer.</li>
+  </ul>
+</section>
+
+<section id="analytics">
+  <h2>Trends, anomalies and causes</h2>
+  <p class="sub">The evaluation asks the system to explain causes. That is done before anyone asks, so queries stay fast.</p>
+  <div class="grid2">
+    <div class="box"><h4>Expected-consumption baseline</h4><p>A physics-plus-regression model predicts Wh/km (or L/100 km) from speed, acceleration, grade, ambient temperature, HVAC load, tyre pressure and battery state of health. The residual is attributed to factors, e.g. "range down 18%: 9% cold and heater, 5% tyre pressure, 4% more highway". Winter thermal loads alone can cut EV range by over 20% (<a href="https://www.preprints.org/manuscript/202607.1475">preprint</a>).</p></div>
+    <div class="box"><h4>Change and anomaly detection</h4><p>Changepoints on daily features with <a href="https://github.com/deepcharles/ruptures">ruptures</a> (BSD-2, 2.1k stars). Rolling median/MAD z-scores per subsystem, message-gap detection and physical plausibility rules (the approach in <a href="https://github.com/deeepiizz/autodiag-copilot">autodiag-copilot</a>). DTC co-occurrence.</p></div>
+    <div class="box"><h4>Event timelines</h4><p>For each warning: which signals deviated first, in onset order, inside the captured pre-window. For example: coolant pump current drops, cell ΔT rises, then the over-temperature DTC.</p></div>
+  </div>
+</section>
+
+<section id="edge">
+  <h2>Edge deployment architecture</h2>
+  <p class="sub">The 2 GB memory budget for the AI partition, and the platform ladder from reference board to vehicle HPC.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th class="num">Target RSS</th></tr></thead>
+    <tbody>
+      <tr><td>Guest OS + container runtime</td><td class="num">~350 MB</td></tr>
+      <tr><td>Kuksa Databroker + providers</td><td class="num">~100 MB</td></tr>
+      <tr><td>Recorder + RAM ring buffer</td><td class="num">~100 MB</td></tr>
+      <tr><td>SQLite page cache</td><td class="num">~64 MB</td></tr>
+      <tr><td>SLM weights (mmap, Q4–Q8, 0.3–1B)</td><td class="num">~250–750 MB</td></tr>
+      <tr><td>KV cache + activations</td><td class="num">~100 MB</td></tr>
+      <tr><td>EmbeddingGemma 2 text (quantized)</td><td class="num">~150–300 MB</td></tr>
+      <tr><td>API, composer, analytics jobs</td><td class="num">~100 MB</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Tier</th><th>Example platforms</th><th>What changes</th></tr></thead>
+    <tbody>
+      <tr><td>Brief envelope</td><td>2× A55, 2 GB partition on an automotive SoC; QEMU aarch64 VM capped at 2 vCPU / 2 GB for SIL</td><td>0.3–0.6B Q4 model, L0 handles most queries</td></tr>
+      <tr><td>Reference boards</td><td>Raspberry Pi 5 (+ AI HAT+ 2, Hailo-10H), RK3588, NXP i.MX 95 EVK, AWS Graviton</td><td>1B model, larger history</td></tr>
+      <tr><td>Cockpit SoC</td><td>Qualcomm SA8295P (Llama 3.2 on AI Hub), NXP i.MX 95 (eIQ GenAI Flow), TI TDA4, Renesas R-Car</td><td>NPU backend; same containers and tools</td></tr>
+      <tr><td>Vehicle HPC</td><td>Central compute with a hypervisor</td><td>1–3B model, multimodal event search, fleet analytics</td></tr>
+    </tbody>
+  </table></div>
+  <p>Hailo-10H on the Pi 5 runs int4 Llama 3.2 1B and Qwen2.5 1.5B, but third-party throughput reports range from 8 to 35 tok/s, and one review found the Pi 5 CPU faster for tiny models (<a href="https://www.hardware-corner.net/local-llms-raspberry-pi-ai-hat-plus-2/">Hardware Corner</a>). <span class="pill tv">To verify</span></p>
+</section>
+
+<section id="ux">
+  <h2>User interaction design</h2>
+  <div class="grid2">
+    <div class="box"><h4>Driver</h4><p>Voice or text in the IVI. Offline ASR (whisper.cpp or the vendor's engine) feeds the same <code>/ask</code> API. The answer is short and spoken, with a card and a mini chart on screen. No numbers appear that the evidence does not contain.</p></div>
+    <div class="box"><h4>Service engineer</h4><p>An authenticated SOVD-style REST API and web console: DTC timelines, event pre-context plots, raw evidence export. This mirrors Sibros' SOVD-based AI Concierge.</p></div>
+    <div class="box"><h4>Fleet and validation</h4><p>Batch queries, scenario reports and anomaly digests, exported on opt-in sync. The cloud is optional and never required to answer.</p></div>
+  </div>
+</section>
+
+<section id="safety">
+  <h2>Safety, security and privacy</h2>
+  <ul>
+    <li><b>Freedom from interference (ISO 26262).</b> The AI is QM software in its own hypervisor guest, with pinned CPUs, a memory cap and memory-bandwidth regulation. A hypervisor alone does not stop cache or DRAM contention (<a href="https://promwad.com/news/hypervisors-in-software-defined-vehicles-partitioning-compute">Promwad</a>). A watchdog restarts it, and if it fails, no vehicle function changes.</li>
+    <li><b>No actuation.</b> The AI gets a read-only, one-way data feed and has no write path to CAN, SOME/IP or VHAL. Peykan's opt-in tiers and frame allowlist are a useful pattern for the service-tool side.</li>
+    <li><b>Cybersecurity.</b> ISO 21434 TARA, UNECE R155 CSMS, secure boot, signed containers and model OTA (R156, Uptane-style), and mutually authenticated service sessions.</li>
+    <li><b>Privacy.</b> Local-only processing, data minimisation, coarse GPS, role separation, consent and delete controls (GDPR, India DPDP Act 2023). Camera data stays as metadata and embeddings, never raw video.</li>
+  </ul>
+</section>
+
+<section id="sim">
+  <h2>Simulation and validation</h2>
+  <div class="grid2">
+    <div class="box"><h4>Scenario engine with ground truth</h4><p>YAML scenarios drive a vehicle model and emit through the real protocols (CAN via DBC on vcan, SOME/IP, DLT, DTCs, ADAS events). Each scenario records when its faults start, which gives exact expected answers for evaluation. Scenarios: range loss over weeks, an efficiency-drop day, a battery overheating sequence, ADAS disengagements, a city/highway mix.</p></div>
+    <div class="box"><h4>CARLA</h4><p>Driving dynamics and ADAS situations. <a href="https://github.com/DaviDubeux/yes-carla-can">Yes, CARLA CAN</a> puts DBC-defined frames on <code>vcan0</code>. CarMate feeds Kuksa from CARLA. <a href="https://arxiv.org/abs/2307.03279">TEASER</a> generates realistic CAN from CARLA runs.</p></div>
+    <div class="box"><h4>Recorded data</h4><ul><li><a href="https://github.com/gsoh/VED">VED</a>: 383 cars, a year of OBD fuel and energy trips, Apache-2.0. <a href="https://github.com/zhangs12013/eVED">eVED</a> adds map attributes.</li><li><a href="https://github.com/commaai/comma2k19">comma2k19</a>: raw CAN plus decoded speed and steering, 2019 one-minute segments, about 100 GB, MIT.</li><li><a href="https://arxiv.org/abs/2012.14600">ROAD</a> and HCRL: CAN with attacks.</li></ul></div>
+    <div class="box"><h4>Evaluation set</h4><p>About 300 queries: the five brief types, paraphrases, ambiguous and unanswerable questions. Metrics: L0 hit rate, tool exact match, numeric accuracy, hallucination rate, p50/p95 latency per stage, peak RSS, storage per day.</p></div>
+  </div>
+</section>
+
+<section id="repos">
+  <h2>Hidden-gem repos</h2>
+  <p class="sub">Stars, license and last activity as reported by the GitHub API on 28 Oct 2026, where reachable.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Project</th><th>What to take from it</th><th class="num">Stars · license · last push</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://github.com/eclipse-sdv-blueprints/carmate">Eclipse SDV CarMate</a></td><td>End-to-end SDV assistant: CARLA → Kuksa VSS → Vehicle Data Accessor → local LLM, STT/TTS, mock-data fallback</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/farzadnadiri/Peykan">Peykan</a></td><td>MCP server exposing CAN, OBD-II, UDS and J1939 to LLMs. Fault presets (overheat, misfire), read-only by default, ID allowlist, audit log</td><td class="num">25 · MIT · active</td></tr>
+      <tr><td><a href="https://glama.ai/mcp/servers/mikehaller/kuksa-mcp-server">kuksa-mcp-server</a></td><td>VSS signals from Kuksa Databroker as LLM tools</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/deeepiizz/autodiag-copilot">autodiag-copilot</a></td><td>Offline deterministic diagnostic pipeline, MAD anomaly detection, hybrid manual/DTC retrieval (0.90 Hit@3 held-out)</td><td class="num">0 · unstated · early</td></tr>
+      <tr><td><a href="https://github.com/avikdas-18/log_analysis">log_analysis</a></td><td>Natural-language search over CAN logs; the LLM handles language only, numbers computed outside it</td><td class="num">small</td></tr>
+      <tr><td><a href="https://github.com/DaviDubeux/yes-carla-can">Yes, CARLA CAN</a></td><td>CARLA 0.9.15 to SocketCAN with a DBC as the single schema, candump logging</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/eclipse-kuksa/kuksa-can-provider">kuksa-can-provider</a></td><td>DBC → VSS provider for Kuksa</td><td class="num">14 · Apache-2.0 · 2026-10-27</td></tr>
+      <tr><td><a href="https://github.com/COVESA/vsomeip">vsomeip</a></td><td>The standard open SOME/IP stack</td><td class="num">1,463 · MPL-2.0 · 2026-09-17</td></tr>
+      <tr><td><a href="https://github.com/COVESA/dlt-daemon">dlt-daemon</a></td><td>Automotive log transport (DLT) for QNX/Linux logs</td><td class="num">461 · MPL-2.0 · 2026-10-24</td></tr>
+      <tr><td><a href="https://github.com/mguentner/cannelloni">cannelloni</a></td><td>CAN over Ethernet between simulator host and target</td><td class="num">474 · not detected · 2026-08-21</td></tr>
+      <tr><td><a href="https://github.com/AnasKhan0607/car-ai">car-ai</a></td><td>Units-plus-context tool returns, structured errors for hallucinated tool names</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/ambrosiobing/edge-llm-pi">edge-llm-pi</a></td><td>Small model plus a rule baseline on Pi boards, including a CAN HAT backend (benchmark chapters not yet published)</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/remotivelabs/remotivelabs-android-emulator">remotivelabs-android-emulator</a></td><td>Feed signals into Cuttlefish/AAOS VHAL</td><td class="num"><span class="pill tv">API timeout</span></td></tr>
+      <tr><td><a href="https://github.com/SqueezeAILab/TinyAgent">TinyAgent</a></td><td>ToolRAG and the synthetic function-calling recipe</td><td class="num">500 · MIT · 2024-09-04</td></tr>
+      <tr><td><a href="https://github.com/deepcharles/ruptures">ruptures</a></td><td>Changepoint detection</td><td class="num">2,104 · BSD-2 · 2026-10-06</td></tr>
+      <tr><td><a href="https://github.com/commaai/comma2k19">comma2k19</a> · <a href="https://github.com/gsoh/VED">VED</a></td><td>Real CAN and multi-month energy data</td><td class="num">662 · MIT / 143 · Apache-2.0</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="papers">
+  <h2>Papers to cite</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Paper</th><th>Key result</th><th>Use in the deck</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://arxiv.org/abs/2501.02342">Optimizing SLMs for In-Vehicle Function-Calling</a> (Mercedes-Benz, 2025)</td><td>Phi-3 pruned to 1.8B, 4-bit, llama.cpp, 11 tok/s on head-unit CPU, 0.86 exact match</td><td>Feasibility of on-device tool calling</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2310.09536">CarExpert</a> (BMW + Fraunhofer, EMNLP 2023)</td><td>Modular in-car RAG with input control and answer moderator</td><td>Grounding and hallucination control</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2409.00608">TinyAgent</a> (Berkeley, 2024)</td><td>1.1B function caller matching GPT-4-Turbo on its task, ToolRAG</td><td>Router training recipe</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2507.22478">SLM-SQL</a> (2025)</td><td>0.5B: 56.9%, 1.5B: 67.1% on BIRD</td><td>Why not free text-to-SQL</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2606.16545">Can LLM Coding Agents Reason About Time Series?</a> (2026)</td><td>Tool access beats raw data by up to 10 points</td><td>Tool/analytics split</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2507.01077">Good Enough to Learn</a> (IEEE IV 2025)</td><td>LLM anomaly detection in ECU logs without reliable labels</td><td>Log analytics</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2609.21109">Talk to Me, Jarvis</a> (2026)</td><td>Offline vehicle voice assistant, 1.39 s average, 97.6% intent accuracy</td><td>Latency precedent</td></tr>
+      <tr><td><a href="https://www.sciencedirect.com/science/article/pii/S2590005626000329">Vehicle-Scale LLMs</a> (2026)</td><td>1B model, 4-bit with low-rank residuals, 1–3% latency overhead vs 8-bit</td><td>Quantization choice</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2511.13023">SLMQuant</a> · <a href="https://arxiv.org/abs/2409.00088">On-Device LM Review</a></td><td>W8A8 within ~0.5% accuracy for small models</td><td>Quantization background</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2012.14600">ORNL CAN IDS data guide + ROAD</a></td><td>Map of open CAN datasets</td><td>Data sourcing</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="industry">
+  <h2>Industry landscape</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Player</th><th>What they ship</th><th>Relevance</th></tr></thead>
+    <tbody>
+      <tr><td>Cerence CaLLM Edge</td><td>Phi-3-based embedded automotive SLM running fully on Arm (Kleidi); MediaTek, NVIDIA, SiMa.ai partners <span class="pill vc">Vendor claim</span></td><td>Proof that OEMs buy on-device SLMs</td></tr>
+      <tr><td>Sibros Vehicle AI Concierge</td><td>Natural-language vehicle health and diagnostics, built on SOVD (CES 2026) <span class="pill vc">Vendor claim</span></td><td>Validates the service-engineer use case and SOVD API</td></tr>
+      <tr><td>Sonatus Collector AI</td><td>LLM chain turning natural language into signal-collection policies <span class="pill vc">Vendor claim</span></td><td>Fleet and validation value</td></tr>
+      <tr><td>NXP eIQ GenAI Flow</td><td>On-device RAG pipeline on i.MX 95</td><td>Production SoC path</td></tr>
+      <tr><td>Li Auto Mind GPT · NIO NOMI GPT</td><td>Cloud-plus-edge cockpit models; Li Auto splits inference between cloud and in-car NPU; NOMI GPT launched April 2024</td><td>China market is ahead on cockpit LLMs</td></tr>
+      <tr><td>Hyundai Gleo AI (42dot, Pleos Connect)</td><td>LLM voice assistant with OTA updates, targeting about 20M vehicles by 2030; on-device share not published</td><td>Korean OEM direction</td></tr>
+      <tr><td>Mercedes-Benz R&amp;D</td><td>Pruned on-device function-calling SLM (paper)</td><td>Direct technical precedent</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="open">
+  <h2>Open questions to measure</h2>
+  <ul>
+    <li>Prefill and decode tok/s for FunctionGemma-270M, LFM2-350M/700M, Qwen3-0.6B and Gemma 3 1B on 2 pinned A55-class cores, with llama.cpp and MNN. Decides the L1 model.</li>
+    <li>EmbeddingGemma 2 text-encoder latency and memory on CPU when quantized, and quality of int8 builds (the model card warns against fp16).</li>
+    <li>Real storage MB/day for a 200–500 signal catalog with on-change policies.</li>
+    <li>Hailo-10H tok/s under a consistent method; SA8295P tok/s from Qualcomm AI Hub tables.</li>
+    <li>LFM2 vs Qwen3 on ARM cores, independent of the vendor's own benchmark.</li>
+    <li>2025 Eclipse SDV Hackathon winning repos (the Eclipse blog could not be fetched from this environment).</li>
+  </ul>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <ul class="src">
+    <li><a href="https://arxiv.org/abs/2501.02342">Optimizing SLMs for In-Vehicle Function-Calling</a></li>
+    <li><a href="https://arxiv.org/abs/2310.09536">CarExpert</a></li>
+    <li><a href="https://arxiv.org/abs/2409.00608">TinyAgent</a></li>
+    <li><a href="https://arxiv.org/abs/2507.22478">SLM-SQL</a></li>
+    <li><a href="https://arxiv.org/abs/2606.16545">LLM coding agents on time series</a></li>
+    <li><a href="https://alphaxiv.org/abs/2601.13653">TimeART</a></li>
+    <li><a href="https://arxiv.org/abs/2507.01077">LLM anomaly detection in ECU logs</a></li>
+    <li><a href="https://arxiv.org/abs/2609.21109">Talk to Me, Jarvis</a></li>
+    <li><a href="https://www.sciencedirect.com/science/article/pii/S2590005626000329">Vehicle-Scale LLMs</a></li>
+    <li><a href="https://arxiv.org/abs/2511.13023">SLMQuant</a></li>
+    <li><a href="https://arxiv.org/abs/2409.00088">On-Device Language Models review</a></li>
+    <li><a href="https://arxiv.org/abs/2506.10443">MNN-LLM</a></li>
+    <li><a href="https://arxiv.org/abs/2605.08195">ExecuTorch</a></li>
+    <li><a href="https://arxiv.org/abs/2012.14600">ORNL CAN IDS data guide / ROAD</a></li>
+    <li><a href="https://arxiv.org/abs/1905.02081">Vehicle Energy Dataset</a></li>
+    <li><a href="https://arxiv.org/abs/1812.05752">comma2k19</a></li>
+    <li><a href="https://arxiv.org/abs/2307.03279">TEASER</a></li>
+    <li><a href="https://huggingface.co/google/embeddinggemma-2">EmbeddingGemma 2 model card</a></li>
+    <li><a href="https://ai.google.dev/gemma/docs/mobile-actions">FunctionGemma Mobile Actions</a></li>
+    <li><a href="https://www.liquid.ai/blog/lfm2-5-350m-no-size-left-behind">Liquid LFM2.5-350M</a></li>
+    <li><a href="https://www.liquid.ai/blog/liquid-foundation-models-v2-our-second-series-of-generative-ai-models">Liquid LFM2</a></li>
+    <li><a href="https://www.raspberrypi.com/news/turn-text-input-into-actions-with-needle-a-14mb-function-calling-llm/">Needle on Raspberry Pi</a></li>
+    <li><a href="https://github.com/eclipse-sdv-blueprints/carmate">Eclipse SDV CarMate</a></li>
+    <li><a href="https://sdv-blueprints.eclipse.dev/docs/carmate/architecture/">CarMate architecture</a></li>
+    <li><a href="https://github.com/eclipse-kuksa/kuksa-databroker">Kuksa Databroker</a></li>
+    <li><a href="https://covesa.github.io/vehicle_signal_specification/">COVESA VSS</a></li>
+    <li><a href="https://projects.eclipse.org/projects/automotive.opensovd">Eclipse OpenSOVD</a></li>
+    <li><a href="https://github.com/farzadnadiri/Peykan">Peykan</a></li>
+    <li><a href="https://github.com/deeepiizz/autodiag-copilot">autodiag-copilot</a></li>
+    <li><a href="https://someipy.readthedocs.io">someipy</a></li>
+    <li><a href="https://www.remotivelabs.com/blog/feeding-your-aaos-emulator">RemotiveLabs: feeding the AAOS emulator</a></li>
+    <li><a href="https://turingpi.com/llm-inference-benchmarks-rk3588-gguf-quantization/">RK3588 GGUF benchmarks</a></li>
+    <li><a href="https://hackaday.io/project/206380-taqabuddy-a-fully-offline-ai-assistant">TaqaBuddy (RK3566)</a></li>
+    <li><a href="https://www.hardware-corner.net/local-llms-raspberry-pi-ai-hat-plus-2/">Pi AI HAT+ 2 review</a></li>
+    <li><a href="https://aihub.qualcomm.com/models/llama_v3_2_1b_instruct">Qualcomm AI Hub: Llama 3.2 1B</a></li>
+    <li><a href="https://promwad.com/news/hypervisors-in-software-defined-vehicles-partitioning-compute">Hypervisors in SDVs</a></li>
+    <li><a href="https://qnx.software/en/press-release/2026/qnx-hypervisor-8-0-for-safety-powers-the-industry-shift-toward-physical-ai-through-deterministic-safety-certified-virtualization">QNX Hypervisor 8.0 for Safety</a></li>
+    <li><a href="https://www.edgeir.com/cerence-ai-and-arm-push-llm-boundaries-with-on-device-ai-for-smarter-cars-20250606">Cerence + Arm</a></li>
+    <li><a href="https://www.sibros.tech/post/connect-with-sibros-at-ces-2026">Sibros at CES 2026</a></li>
+    <li><a href="https://www.nxp.com/company/about-nxp/smarter-world-blog/BL-GEN-AI-FOR-EMBEDDED-APPS">NXP GenAI for embedded</a></li>
+    <li><a href="https://autonews.gasgoo.com/articles/market-industry/nio-launches-nomi-gpt-large-model-70032446">NIO NOMI GPT</a></li>
+    <li><a href="https://www.hyundaimotorgroup.com/en/news/hyundai-motor-group-redefines-in-vehicle-experience-with-pleos-connect-next-generation-infotainment-system">Hyundai Pleos Connect</a></li>
+    <li><a href="https://www.preprints.org/manuscript/202607.1475">EV thermal range loss preprint</a></li>
+  </ul>
+</section>
+
+<footer>Prepared for the Teliport S4 Case Study 5 team. Vendor figures are labelled; anything marked "to verify" will be measured during the build.</footer>
+</main>
+</div>

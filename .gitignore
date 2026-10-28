@@ -1,0 +1,15 @@
+# Generated / working files for the deck — not research info
+deck/unpacked/
+deck/render/
+deck/render-template/
+deck/icons/
+deck/tools/node_modules/
+deck/tools/package-lock.json
+deck/*.pptx
+deck/~$*.pptx
+deck/base.pptx
+deck/template.pptx
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
